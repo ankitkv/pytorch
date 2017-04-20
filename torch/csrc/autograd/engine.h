@@ -53,7 +53,7 @@ protected:
   virtual void thread_on_exception(FunctionTask& task, std::exception& e);
 
   std::once_flag start_threads_flag;
-  std::vector<std::unique_ptr<ReadyQueue>> ready_queues;
+  std::vector<std::shared_ptr<ReadyQueue>> ready_queues;
 };
 
 }} // namespace torch::autograd
