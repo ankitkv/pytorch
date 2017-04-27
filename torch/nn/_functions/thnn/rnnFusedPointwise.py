@@ -4,35 +4,36 @@ from torch._thnn import type2backend
 
 
 class GRUFused(Function):
-    def __init__(self):
-        self.backend = None
 
-    def forward(self, input_gate, hidden_gate, hx, ibias=None, hbias=None):
-        if self.backend is None:
-            self.backend = type2backend[type(input_gate)]
+    @staticmethod
+    def forward(ctx, input_gate, hidden_gate, hx, ibias=None, hbias=None, backend=None):
+        ctx.backend = backend
+        if ctx.backend is None:
+            ctx.backend = type2backend[type(input_gate)]
         hy = input_gate.new()
-        self.backend.GRUFused_updateOutput(
-            self.backend.library_state,
+        ctx.backend.GRUFused_updateOutput(
+            ctx.backend.library_state,
             input_gate, hidden_gate, ibias, hbias, hx, hy)
-        self.save_for_backward(input_gate, hidden_gate, ibias)
+        ctx.save_for_backward(input_gate, hidden_gate, ibias)
         return hy
 
-    def backward(self, gradOutput):
-        if self.backend is None:
-            self.backend = type2backend[type(grad_output)]
+    @staticmethod
+    def backward(ctx, gradOutput):
+        if ctx.backend is None:
+            ctx.backend = type2backend[type(grad_output)]
         gradInput = gradOutput.new()
-        input_gate, hidden_gate, bias = self.saved_tensors
+        input_gate, hidden_gate, bias = ctx.saved_variables
 
-        self.backend.GRUFused_updateGradInput(
-            self.backend.library_state,
+        ctx.backend.GRUFused_updateGradInput(
+            ctx.backend.library_state,
             input_gate, hidden_gate, gradOutput, gradInput)
         if bias is not None:
             gb1 = input_gate.sum(0).squeeze()
             gb2 = hidden_gate.sum(0).squeeze()
 
-            return input_gate, hidden_gate, gradInput, gb1, gb2
+            return input_gate, hidden_gate, gradInput, gb1, gb2, None
         else:
-            return input_gate, hidden_gate, gradInput
+            return input_gate, hidden_gate, gradInput, None, None, None
 
 
 class LSTMFused(Function):

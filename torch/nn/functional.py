@@ -435,11 +435,11 @@ def log_softmax(input):
 
 
 def tanh(input):
-    return _functions.thnn.Tanh()(input)
+    return torch.tanh(input)
 
 
 def sigmoid(input):
-    return _functions.thnn.Sigmoid()(input)
+    return torch.sigmoid(input)
 
 
 # etc.
