@@ -6,6 +6,7 @@
 #include "torch/csrc/autograd/python_variable.h"
 #include "python_strings.h"
 #include "python_numbers.h"
+#include "torch/csrc/THP.h"
 
 namespace torch {
 
