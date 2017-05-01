@@ -4,6 +4,7 @@ import torch
 from . import _functions
 from .modules import utils
 from ._functions.padding import ConstantPad2d
+from ..autograd import _functions as _autograd_functions
 from .modules.utils import _single, _pair, _triple
 
 # Convolutions
@@ -208,9 +209,8 @@ def avg_pool2d(input, kernel_size, stride=None, padding=0,
           tuple (sh x sw). Default is equal to kernel size
         padding: implicit zero padding on the input, a single number or
           a tuple (padh x padw), Default: 0
-        ceil_mode: operation that defines spatial output shape
-        count_include_pad: divide by the number of elements inside the
-          original non-padded image or kh * kw
+        ceil_mode: when True, will use `ceil` instead of `floor` in the formula to compute the output shape
+        count_include_pad: when True, will include the zero-padding in the averaging calculation
     """
     return _functions.thnn.AvgPool2d(kernel_size, stride, padding,
                                      ceil_mode, count_include_pad)(input)
@@ -218,7 +218,7 @@ def avg_pool2d(input, kernel_size, stride=None, padding=0,
 
 def avg_pool3d(input, kernel_size, stride=None):
     """Applies 3D average-pooling operation in kt x kh x kw regions by step
-    size kt x dh x dw steps. The number of output features is equal to the
+    size dt x dh x dw steps. The number of output features is equal to the
     number of input planes / dt.
     """
     return _functions.thnn.AvgPool3d(kernel_size, stride)(input)
@@ -407,7 +407,7 @@ def hardshrink(input, lambd=0.5):
 
 
 def tanhshrink(input):
-    return input - _functions.thnn.Tanh()(input)
+    return input - _autograd_functions.Tanh()(input)
 
 
 def softsign(input):
@@ -435,20 +435,28 @@ def log_softmax(input):
 
 
 def tanh(input):
-    return torch.tanh(input)
+    return _autograd_functions.Tanh.apply(input)
 
 
 def sigmoid(input):
-    return torch.sigmoid(input)
+    return _autograd_functions.Sigmoid.apply(input)
 
 
 # etc.
 
 def linear(input, weight, bias=None):
-    if bias is not None:
-        return _functions.linear.Linear.apply(input, weight, bias)
-    else:
+    if bias is None:
         return _functions.linear.Linear.apply(input, weight)
+    else:
+        return _functions.linear.Linear.apply(input, weight, bias)
+
+
+def bilinear(input1, input2, weight, bias=None):
+    state = _functions.linear.Bilinear()
+    if bias is None:
+        return state(input1, input2, weight)
+    else:
+        return state(input1, input2, weight, bias)
 
 
 def batch_norm(input, running_mean, running_var, weight=None, bias=None,

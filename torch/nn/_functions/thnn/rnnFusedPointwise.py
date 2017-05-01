@@ -11,6 +11,12 @@ class GRUFused(Function):
         if ctx.backend is None:
             ctx.backend = type2backend[type(input_gate)]
         hy = input_gate.new()
+        if ibias is not None:
+            if ibias.dim() == 1:
+                ibias.unsqueeze_(0)
+            if hbias.dim() == 1:
+                hbias.unsqueeze_(0)
+
         ctx.backend.GRUFused_updateOutput(
             ctx.backend.library_state,
             input_gate, hidden_gate, ibias, hbias, hx, hy)
@@ -45,6 +51,11 @@ class LSTMFused(Function):
             self.backend = type2backend[type(input_gate)]
         hy = input_gate.new()
         cy = input_gate.new()
+        if ibias is not None:
+            if ibias.dim() == 1:
+                ibias.unsqueeze_(0)
+            if hbias.dim() == 1:
+                hbias.unsqueeze_(0)
         self.backend.LSTMFused_updateOutput(
             self.backend.library_state,
             input_gate, hidden_gate,

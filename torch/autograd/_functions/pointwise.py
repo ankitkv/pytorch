@@ -1,5 +1,6 @@
 from itertools import repeat
 
+from ..._thnn import type2backend
 from ..function import Function, InplaceFunction
 
 
