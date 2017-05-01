@@ -345,16 +345,16 @@ class Variable(_C._VariableBase):
         return Negate.apply(self, True)
 
     def tanh(self):
-        return Tanh.apply(self, False)
+        return Tanh()(self)
 
     def tanh_(self):
-        return Tanh.apply(self, True)
+        return Tanh(True)(self)
 
     def sigmoid(self):
-        return Sigmoid.apply(self, False)
+        return Sigmoid()(self)
 
     def sigmoid_(self):
-        return Sigmoid.apply(self, True)
+        return Sigmoid(True)(self)
 
     def sin(self):
         return Sin()(self)
