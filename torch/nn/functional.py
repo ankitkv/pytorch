@@ -407,7 +407,7 @@ def hardshrink(input, lambd=0.5):
 
 
 def tanhshrink(input):
-    return input - _autograd_functions.Tanh()(input)
+    return input - _autograd_functions.Tanh.apply(input, False)
 
 
 def softsign(input):
@@ -435,11 +435,11 @@ def log_softmax(input):
 
 
 def tanh(input):
-    return _autograd_functions.Tanh.apply(input)
+    return _autograd_functions.Tanh.apply(input, False)
 
 
 def sigmoid(input):
-    return _autograd_functions.Sigmoid.apply(input)
+    return _autograd_functions.Sigmoid.apply(input, False)
 
 
 # etc.
